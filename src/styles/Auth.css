@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+.auth-wrapper{
+    background-color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.container{
+    background-color: #000000;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(235, 233, 233, 0.88);
+    position: relative;
+    overflow: hidden;
+    width: 1300px;
+    max-width: 100%;
+    min-height: 620px;
+    color: #fff;
+    
+}
+
+.container button{
+    background-color: #260202;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 30px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 300;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.container form{
+    background-color: #000000;
+    display: flex;
+    flex-direction: column;
+    padding: 0 40px;
+    justify-content: center;
+    height: 100%;
+}
+
+.container input{
+    background-color: #1818188e;
+    border:none;
+    margin: 8px 0;
+    padding: 10px 11px;
+    border-radius: 8px;
+    width: 100%;
+    color:#fff
+}
+
+.form-container{
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+    padding-top: 90px;
+}
+
+.form-container form{
+    background-color: #000000;           
+    border-radius: 15px;
+    box-shadow: 1px 1px 2px rgba(244, 243, 243, 0.6);
+    width: 80%;
+    height: 80%;
+    max-width: 400px;
+    margin: auto;
+}
+
+.sign-in{
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+
+.container.active .sign-in{
+    transform: translateX(100%);
+}
+
+.sign-up{
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+.container.active .sign-up{
+    transform: translateX(100%);
+    opacity: 1;
+    z-index: 5;
+}
+.toggle-container{
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.6s ease-in-out;
+    z-index: 1000;
+}
+
+.container.active .toggle-container{
+    transform: translateX(-100%);
+}
+
+.toggle{
+    background-color: #8B0000;
+    height: 100%;
+    color: #fff;
+    position: relative; 
+    left: -53%;
+    width: 165%;
+    transition: all 0.6s ease-in-out;
+    background-image: url('../img/img2.png');
+    background-position: center;
+    background-size: 87%;
+    background-repeat: no-repeat;
+}
+
+/* ====== PANELES ====== */
+
+.toggle-panel{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    top: 28%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+    transition: all 0.6s ease-in-out;
+}
+
+.toggle-right{
+    right: 0;
+    transform: translate(-25%, -50%);
+}
+
+.container.active .toggle-right{
+    transform: translate(75%, -50%);
+}
+
+/* PANEL IZQUIERDO (Welcome Back) */
+.toggle-left{
+    left: 0;
+    transform: translate(-75%, -50%);
+}
+
+.container.active .toggle-left{
+    transform: translate(75%, -50%); 
+}
