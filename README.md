@@ -31,6 +31,7 @@ http://localhost:3000/api
 ## Funcionalidades
 
 - Registro e inicio de sesión
+- Validacion de cedula con el padron antes del registro
 - Persistencia del token en `sessionStorage`
 - Protección de rutas privadas
 - Listado de vehículos con filtros y paginación
@@ -44,3 +45,9 @@ http://localhost:3000/api
 
 - El token se guarda en `sessionStorage`
 - Las rutas privadas usan `ProtectedRoute`
+
+## Registro
+
+- El usuario debe consultar primero la cedula con el backend.
+- Si la cedula existe en el padron, el formulario autocompleta nombre y apellidos.
+- El backend vuelve a validar la cedula al momento de registrar el usuario.
