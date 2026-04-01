@@ -1,0 +1,339 @@
+/* ===== Shared / base ===== */
+.muted {
+  color: #8b949e;
+}
+
+/* Form base */
+.form {
+  display: grid;
+  gap: 10px;
+}
+
+.formMarginTop {
+  margin-top: 10px;
+}
+
+.textarea {
+  min-height: 70px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(24, 24, 24, 0.56);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  resize: vertical;
+}
+
+.textarea:disabled {
+  opacity: 0.7;
+}
+
+.button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #260202;
+  color: #fff;
+  font-weight: 600;
+}
+
+.button:hover {
+  background: #8B0000;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Pending message box */
+.pending {
+  padding: 10px;
+  border-radius: 10px;
+  background: #2d1b1b;
+  border: 1px solid #5b2a2a;
+  color: #fff;
+}
+
+/* ===== Conversation thread ===== */
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #2c2c2c;
+  background: #070a0f;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.bubble {
+  max-width: 80%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.08);
+  white-space: pre-wrap;
+}
+
+.buyerBubble {
+  align-self: flex-end;
+  background: #1f6feb;
+}
+
+.sellerBubble {
+  align-self: flex-start;
+  background: #1f2937;
+}
+
+.bubbleAuthor {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.bubbleText {
+  font-size: 14px;
+}
+
+.bubbleDate {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* ===== Modal ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 9999;
+}
+
+.modal {
+  width: min(1100px, 96vw);
+  max-height: 85vh;
+  overflow: auto;
+  background: #0b0f14;
+  border: 1px solid #2c2c2c;
+  border-radius: 14px;
+  padding: 18px;
+  color: #fff;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.modalTitle {
+  margin: 0;
+}
+
+.modalSubtitle {
+  margin: 6px 0 0;
+  color: #8b949e;
+}
+
+.closeBtn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #222;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  background: #333;
+}
+
+.modalContent {
+  margin-top: 16px;
+}
+
+/* Layouts (Modal + Panel) */
+.twoColLayout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 14px;
+}
+
+.stackLayout {
+  display: grid;
+  gap: 14px;
+}
+
+/* Sidebar */
+.sidebar {
+  border: 1px solid #2c2c2c;
+  border-radius: 12px;
+  padding: 12px;
+  background: #070a0f;
+}
+
+.sidebarTitle {
+  margin-top: 0;
+  color: #fff;
+}
+
+.threadList {
+  display: grid;
+  gap: 8px;
+}
+
+.threadBtn {
+  text-align: left;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #2c2c2c;
+  background: #0b0f14;
+  color: #fff;
+  cursor: pointer;
+}
+
+.threadBtnSelected {
+  background: #111823;
+}
+
+.threadBuyerName {
+  font-weight: 600;
+}
+
+.threadMeta {
+  font-size: 12px;
+  color: #8b949e;
+  margin-top: 4px;
+}
+
+.pageShell {
+  width: min(1560px, calc(100vw - 48px));
+  max-width: none;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+
+.pageHeader {
+  margin-bottom: 24px;
+}
+
+.pageTitle {
+  margin: 0;
+  color: #fff;
+}
+
+.pageSubtitle {
+  margin: 8px 0 0;
+  color: #8b949e;
+}
+
+.pageList {
+  display: grid;
+  gap: 18px;
+}
+
+.pageCard {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #2c2c2c;
+  background: #0b0f14;
+  width: 100%;
+}
+
+.pageCardTitle {
+  margin: 0;
+  color: #fff;
+}
+
+.pageCardSubtitle {
+  margin: 6px 0 0;
+  color: #8b949e;
+}
+
+.pageCardHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.pageCardBody {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  min-height: 680px;
+}
+
+.summaryBlock {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.summaryBlock:last-child {
+  border-bottom: none;
+}
+
+.summaryLabel {
+  font-size: 12px;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summaryValue {
+  color: #fff;
+  font-weight: 600;
+}
+
+.threadBlock {
+  display: grid;
+  gap: 12px;
+}
+
+.emptyPanel {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #2c2c2c;
+  border-radius: 12px;
+  background: #070a0f;
+  padding: 16px;
+}
+
+.pageCard .sidebar {
+  height: 100%;
+}
+
+.pageCard .threadList {
+  max-height: 600px;
+  overflow: auto;
+}
+
+.pageCard .thread {
+  min-height: 520px;
+  max-height: 520px;
+}
+
+@media (max-width: 900px) {
+  .twoColLayout,
+  .pageCardBody {
+    grid-template-columns: 1fr;
+  }
+
+  .modal {
+    width: min(96vw, 96vw);
+    padding: 14px;
+  }
+}
