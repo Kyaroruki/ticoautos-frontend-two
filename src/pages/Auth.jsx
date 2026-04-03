@@ -11,11 +11,11 @@ function Auth() {
       <div className={`container ${isActive ? "active" : ""}`}>
 
         <div className="form-container sign-up">
-          <Register /> {/* Aquí se muestra el formulario de registro */}
+          <Register isVisible={isActive} /> {/* Aquí se muestra el formulario de registro */}
         </div>
 
         <div className="form-container sign-in">
-          <Login /> {/* Aquí se muestra el formulario de inicio de sesión */}
+          <Login isVisible={!isActive} /> {/* Aquí se muestra el formulario de inicio de sesión */}
         </div>
 
         <div className="toggle-container"> {/* Contenedor para los paneles de bienvenida */}

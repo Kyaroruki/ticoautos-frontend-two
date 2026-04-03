@@ -1,8 +1,9 @@
 import { useState } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from '@react-oauth/google';
 
-function Login() {
+function Login({ isVisible = true }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -34,6 +35,31 @@ function Login() {
     }
   };
 
+  // Maneja el login con Google
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const response = await api.post("/auth/google", {
+        credential: credentialResponse.credential
+      });
+
+      if (response.status === 200) {
+        // Usuario ya registrado, inicia sesión directamente
+        sessionStorage.setItem("token", response.data.token);
+        navigate("/");
+      } else if (response.status === 202) {
+        // Usuario nuevo, debe ir a registrarse con cédula
+        setMessage("No tienes cuenta aún. Por favor regístrate con Google.");
+      }
+    } catch (error) {
+      if (error.response?.status === 202) {
+        // Usuario nuevo, debe ir a registrarse con cédula
+        setMessage("No tienes cuenta aún. Por favor regístrate con Google.");
+      } else {
+        setMessage("Error al iniciar sesión con Google");
+      }
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <h1>Sign In</h1>
@@ -53,6 +79,16 @@ function Login() {
       />
 
       <button type="submit">Sign In</button>
+
+      {/* Botón de Google para login */}
+      {isVisible && (
+        <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setMessage("Error al iniciar sesión con Google")}
+          />
+        </div>
+      )}
 
       {message && <p>{message}</p>}
     </form>

@@ -13,7 +13,6 @@
 .container{
     background-color: #000000;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(235, 233, 233, 0.88);
     position: relative;
     overflow: hidden;
     width: 1420px;
@@ -69,7 +68,6 @@
     border-radius: 15px;
     box-shadow: 1px 1px 2px rgba(244, 243, 243, 0.6);
     width: 88%;
-    min-height: 680px;
     height: auto;
     max-width: 500px;
     margin: auto;
@@ -167,4 +165,91 @@
 
 .container.active .toggle-left{
     transform: translate(75%, -50%); 
+}
+
+/* google modal */
+
+.google-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.88);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.google-modal {
+    background-color: #000000;
+    border-radius: 15px;
+    box-shadow: 1px 1px 2px rgba(244, 243, 243, 0.6);
+    padding: 32px 34px;
+    min-width: 320px;
+    max-width: 460px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.google-modal h2 {
+    color: #fff;
+    margin: 0 0 8px 0;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
+.google-modal input {
+    background-color: #1818188e;
+    border: none;
+    margin: 8px 0;
+    padding: 10px 11px;
+    border-radius: 8px;
+    width: 100%;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.google-modal input.input-readonly {
+    background-color: #2a2a2a;
+    opacity: 0.8;
+}
+
+.google-modal button {
+    background-color: #260202;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 30px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 300;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.google-modal button.btn-cancel {
+    background-color: #333;
+}
+
+.google-modal button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.google-modal .msg-success {
+    color: #4caf50;
+    margin: 4px 0;
+    font-size: 13px;
+}
+
+.google-modal .msg-error {
+    color: #f44336;
+    margin: 4px 0;
+    font-size: 13px;
 }
