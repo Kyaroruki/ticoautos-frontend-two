@@ -3,10 +3,9 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 
-function Login({ isVisible = true }) {
+function Login({ isVisible = true, showToast }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -24,13 +23,16 @@ function Login({ isVisible = true }) {
           sessionStorage.setItem("token", token);
           navigate("/"); // Redirige a la principal
         }
-        setMessage("Login exitoso"); //MODIFICAR LOS MENSAJES
+        showToast("Login exitoso", "success");
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        setMessage("Credenciales incorrectas");
+        showToast("Credenciales incorrectas", "error");
+      } else if (error.response?.status === 403) {
+        // NUEVO: si la cuenta existe pero sigue pendiente, avisamos que primero debe activar el correo.
+        showToast("Debes verificar tu correo antes de ingresar", "error");
       } else {
-        setMessage("Error en el servidor");
+        showToast("Error en el servidor", "error");
       }
     }
   };
@@ -48,14 +50,17 @@ function Login({ isVisible = true }) {
         navigate("/");
       } else if (response.status === 202) {
         // Usuario nuevo, debe ir a registrarse con cédula
-        setMessage("No tienes cuenta aún. Por favor regístrate con Google.");
+        showToast("No tienes cuenta aun. Por favor registrate con Google.", "info");
       }
     } catch (error) {
       if (error.response?.status === 202) {
         // Usuario nuevo, debe ir a registrarse con cédula
-        setMessage("No tienes cuenta aún. Por favor regístrate con Google.");
+        showToast("No tienes cuenta aun. Por favor registrate con Google.", "info");
+      } else if (error.response?.status === 403) {
+        // NUEVO: tambien bloqueamos el login con Google si la cuenta sigue pendiente de verificacion.
+        showToast("Debes verificar tu correo antes de ingresar", "error");
       } else {
-        setMessage("Error al iniciar sesión con Google");
+        showToast("Error al iniciar sesion con Google", "error");
       }
     }
   };
@@ -85,12 +90,10 @@ function Login({ isVisible = true }) {
         <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'center' }}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setMessage("Error al iniciar sesión con Google")}
+            onError={() => showToast("Error al iniciar sesion con Google", "error")}
           />
         </div>
       )}
-
-      {message && <p>{message}</p>}
     </form>
   );
 }
