@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 
-function Register({ isVisible = true }) {
+function Register({ isVisible = true, showToast }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -13,7 +13,6 @@ function Register({ isVisible = true }) {
   const [lastname, setLastname] = useState("");
   const [identify_number, setIdentifyNumber] = useState("");
   const [profileImage, setProfileImage] = useState(null);
-  const [message, setMessage] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,17 +37,15 @@ function Register({ isVisible = true }) {
     setName("");
     setLastname("");
     setIsVerified(false);
-    setMessage("");
   };
 
   const handleVerifyIdentity = async () => {
     if (!identify_number.trim()) {
-      setMessage("Debe ingresar una cédula para consultar el padrón");
+      showToast("Debe ingresar una cedula para consultar el padron", "error");
       return;
     }
 
     setIsVerifying(true);
-    setMessage("");
 
     try {
       const response = await api.get(`/auth/identity/${identify_number}`);
@@ -56,12 +53,16 @@ function Register({ isVisible = true }) {
       setName(response.data.name);
       setLastname(response.data.lastname);
       setIsVerified(true);
-      setMessage("ID validated successfully");
+      showToast("Cedula validada correctamente", "success");
     } catch (error) {
       setName("");
       setLastname("");
       setIsVerified(false);
-      setMessage(error.response?.data?.message || "Unable to query the registry");
+      if (error.response?.status === 404) {
+        showToast("La cedula no aparece en el padron o eres menor de edad", "error");
+      } else {
+        showToast("No se pudo consultar el padron", "error");
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -71,12 +72,11 @@ function Register({ isVisible = true }) {
     e.preventDefault();
 
     if (!isVerified) {
-      setMessage("You must validate the ID before registering");
+      showToast("Debes validar la cedula antes de registrarte", "error");
       return;
     }
 
     setIsSubmitting(true);
-    setMessage("");
 
     try {
       const formData = new FormData();
@@ -102,10 +102,19 @@ function Register({ isVisible = true }) {
         setIdentifyNumber("");
         setProfileImage(null);
         setIsVerified(false);
-        setMessage(response.data.message || "User registered successfully");
+        // NUEVO: ahora al registrarse no entra de una vez; primero debe revisar el correo y activar la cuenta.
+        showToast("Registro completado. Revisa tu correo para activar la cuenta", "success");
       }
     } catch (error) {
-      setMessage(error.response?.data?.message || "Server error");
+      if (error.response?.status === 409) {
+        showToast("Ya existe un usuario registrado con esos datos", "error");
+      } else if (error.response?.status === 404) {
+        showToast("La cedula no aparece en el padron", "error");
+      } else if (error.response?.status === 400) {
+        showToast("Completa correctamente los datos del registro", "error");
+      } else {
+        showToast("Error en el servidor", "error");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -126,12 +135,16 @@ function Register({ isVisible = true }) {
         setGoogleCredential(credentialResponse.credential);
         setGoogleEmail(decoded.email || '');
         setShowGoogleModal(true);
+        showToast("Completa los datos faltantes para terminar el registro con Google", "info");
       }
     } catch (error) {
       if (error.response?.status === 409) {
-        setMessage("Este correo de Google ya está registrado.");
+        showToast("Ese correo de Google ya esta registrado", "error");
+      } else if (error.response?.status === 403) {
+        // NUEVO: si la cuenta de Google existe pero sigue pendiente, avisamos que falta activar el correo.
+        showToast("Debes verificar tu correo antes de ingresar", "error");
       } else {
-        setMessage("Error al registrarse con Google");
+        showToast("Error al registrarse con Google", "error");
       }
     }
   };
@@ -168,14 +181,19 @@ function Register({ isVisible = true }) {
         email: googleEmail
       });
       if (response.status === 201) {
-        sessionStorage.setItem("token", response.data.token);
         setShowGoogleModal(false);
-        navigate("/");
+        setGoogleCedula("");
+        setGoogleUsername("");
+        setGooglePhone("");
+        setGoogleMessage("");
+        setGoogleCedulaVerified(false);
+        // NUEVO: igual que en el registro normal, aqui tambien queda pendiente hasta confirmar el email.
+        showToast("Registro con Google completado. Revisa tu correo para activar la cuenta", "success");
       }
     } catch (error) {
-      if (error.response?.status === 409) setGoogleMessage("User or ID already registered");
-      else if (error.response?.status === 404) setGoogleMessage("ID not found in the registry");
-      else setGoogleMessage("Error registering with Google");
+      if (error.response?.status === 409) setGoogleMessage(error.response.data?.message || "User or ID already registered");
+      else if (error.response?.status === 404) setGoogleMessage(error.response.data?.message || "ID not found in the registry");
+      else setGoogleMessage(error.response?.data?.message || "Error registering with Google");
     } finally {
       setIsGoogleSubmitting(false);
     }
@@ -254,13 +272,11 @@ function Register({ isVisible = true }) {
         <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'center' }}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => setMessage("Error registering with Google")}
+            onError={() => showToast("Error al registrarse con Google", "error")}
             text="signup_with"
           />
         </div>
       )}
-
-      {message && <p>{message}</p>}
     </form>
 
     {/* Modal para pedir cédula cuando el usuario se registra con Google */}

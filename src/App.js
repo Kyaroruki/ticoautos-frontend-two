@@ -8,6 +8,7 @@ import EditVehicle from "./pages/EditVehicle";
 import MyInbox from "./pages/MyInbox";
 import MyQuestions from "./pages/MyQuestions";
 import MyVehicles from "./pages/MyVehicles";
+import VerifyEmail from "./pages/VerifyEmail"; //Nuevo: Para activar la cuenta email
 import VehicleDetail from "./pages/VehicleDetail";
 import MainContainer from "./components/layout/MainContainer";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/verify-email" element={<VerifyEmail />} /> 
         <Route path="/vehicles/:id" element={<VehicleDetail />} />
         <Route element={
           <ProtectedRoute>
