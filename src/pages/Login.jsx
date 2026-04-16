@@ -6,31 +6,48 @@ import { GoogleLogin } from '@react-oauth/google';
 function Login({ isVisible = true, showToast }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  // Estado para el flujo 2FA
+  const [twoFARequired, setTwoFARequired] = useState(false);
+  const [twoFACode, setTwoFACode] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await api.post("/auth/login", {
-        username,
-        password,
-      });
+      const response = await api.post("/auth/login", { username, password });
 
-      if (response.status === 200) {
-        const token = response.data.token;
-        if (token) {
-          sessionStorage.setItem("token", token);
-          navigate("/"); // Redirige a la principal
-        }
-        showToast("Login exitoso", "success");
+      if (response.data.twoFARequired) {
+        // El backend envió un SMS con el código, mostramos la pantalla de 2FA
+        setTwoFARequired(true);
+        showToast("Se envió un código de verificación a tu teléfono", "info");
       }
     } catch (error) {
-      if (error.response && error.response.status === 401) {
+      if (error.response?.status === 401) {
         showToast("Credenciales incorrectas", "error");
       } else if (error.response?.status === 403) {
         // NUEVO: si la cuenta existe pero sigue pendiente, avisamos que primero debe activar el correo.
         showToast("Debes verificar tu correo antes de ingresar", "error");
+      } else {
+        showToast("Error en el servidor", "error");
+      }
+    }
+  };
+
+  // PASO 2: Verificación del código 2FA
+  const handle2FASubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/auth/verify-2fa", { username, code: twoFACode });
+      const token = response.data.token;
+      if (token) {
+        sessionStorage.setItem("token", token);
+        navigate("/");
+        showToast("Login exitoso", "success");
+      }
+    } catch (error) {
+      if (error.response?.status === 401) {
+        showToast("Código incorrecto o expirado", "error");
       } else {
         showToast("Error en el servidor", "error");
       }
@@ -66,35 +83,55 @@ function Login({ isVisible = true, showToast }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Sign In</h1>
-
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)} 
-      />
-
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)} 
-      />
-
-      <button type="submit">Sign In</button>
-
-      {/* Botón de Google para login */}
-      {isVisible && (
-        <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'center' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => showToast("Error al iniciar sesion con Google", "error")}
+    <>
+      {/* Pantalla de verificación 2FA: aparece después de que el backend envió el SMS */}
+      {twoFARequired ? (
+        <form onSubmit={handle2FASubmit}>
+          <h1>Verificación 2FA</h1>
+          <p>Ingresa el código de 6 dígitos que enviamos a tu teléfono.</p>
+          <input
+            type="text"
+            placeholder="Código de verificación"
+            value={twoFACode}
+            onChange={(e) => setTwoFACode(e.target.value)}
+            maxLength={6}
+            required
           />
-        </div>
+          <button type="submit">Verificar</button>
+        </form>
+      ) : (
+        /* Pantalla normal de login */
+        <form onSubmit={handleSubmit}>
+          <h1>Sign In</h1>
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <button type="submit">Sign In</button>
+
+          {/* Botón de Google para login */}
+          {isVisible && (
+            <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'center' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => showToast("Error al iniciar sesion con Google", "error")}
+              />
+            </div>
+          )}
+        </form>
       )}
-    </form>
+    </>
   );
 }
 
