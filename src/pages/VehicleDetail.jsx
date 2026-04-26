@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../services/api";
+import graphqlApi from "../services/graphqlApi";
 import '../styles/vehicle.css';
 
 function VehicleDetail() {
@@ -9,9 +9,29 @@ function VehicleDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/vehicles/${id}`)
+    graphqlApi.post("/graphql", {
+      query: `
+        query GetVehicle($id: ID!) {
+          vehicle(id: $id) {
+            _id
+            brand
+            model
+            year
+            price
+            description
+            status
+            image
+            date
+            owner {
+              name
+            }
+          }
+        }
+      `,
+      variables: { id }
+    })
       .then(res => {
-        setVehicle(res.data);
+        setVehicle(res.data.data.vehicle);
         setLoading(false);
       })
       .catch(() => {
@@ -20,16 +40,16 @@ function VehicleDetail() {
       });
   }, [id]);
 
-    useEffect(() => {
-      document.body.style.background = '#161515';
-      return () => {
-        document.body.style.background = '';
-      };
-    }, []);
+  useEffect(() => {
+    document.body.style.background = '#161515';
+    return () => {
+      document.body.style.background = '';
+    };
+  }, []);
 
-    if (!vehicle) {
-      return <p style={{ color: '#fff', background: '#161515', padding: '32px', borderRadius: '18px', textAlign: 'center', margin: '40px auto', maxWidth: 600 }}>Vehicle not found.</p>;
-    }
+  if (!vehicle) {
+    return <p style={{ color: '#fff', background: '#161515', padding: '32px', borderRadius: '18px', textAlign: 'center', margin: '40px auto', maxWidth: 600 }}>Vehicle not found.</p>;
+  }
 
   return (
     <div style={{ background: ' #000000', borderRadius: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.2)', margin: '40px auto', maxWidth: 1200, padding: '48px', color: '#fff', border: '1px solid #292929', display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '48px' }}>

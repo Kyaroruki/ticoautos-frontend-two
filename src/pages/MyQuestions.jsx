@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ConversationThread from "../components/chat/ConversationThread";
 import QuestionForm from "../components/chat/QuestionForm";
 import ThreadList from "../components/chat/ThreadList";
-import api from "../services/api";
+import graphqlApi from "../services/graphqlApi";
 import {appendQuestion,buildQuestionThreads,getPendingQuestion,getSelectedThread,getVehicleTitle,
 } from "../utils/questions";
 import styles from "../styles/chat.module.css";
@@ -20,8 +20,45 @@ export default function MyQuestions() {
       setErrorMessage("");
 
       try {
-        const res = await api.get("/questions/my-questions");
-        setQuestions(res.data.questions || []);
+        const token = sessionStorage.getItem("token");
+
+        const res = await graphqlApi.post(
+          "/graphql",
+          {
+            query: `
+              query {
+                myQuestions {
+                  _id
+                  text
+                  date
+                  user {
+                    _id
+                    name
+                  }
+                  vehicle {
+                    _id
+                    brand
+                    model
+                  }
+                  answers {
+                    _id
+                    text
+                    date
+                    user {
+                      _id
+                      name
+                    }
+                  }
+                }
+              }
+            `
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        setQuestions(res.data.data.myQuestions || []);
       } catch (error) {
         setQuestions([]);
         setErrorMessage("Could not load your questions.");

@@ -3,7 +3,7 @@ import FilterBar from "../components/filters/FilterBar";
 import VehicleListCard from "../components/vehicle/VehicleListCard";
 import Navbar from "../components/layout/Navbar";
 import QuestionModal from "../components/chat/QuestionModal";
-import api from "../services/api";
+import graphqlApi from "../services/graphqlApi";
 import '../styles/vehicle.css';
 
 function Home() {
@@ -19,20 +19,84 @@ function Home() {
   // Detecta si el usuario está autenticado
   const isAuthenticated = !!sessionStorage.getItem("token");
 
+  //Cambio a QL
   const fetchVehicles = async (filterParams = {}, pageNum = 1) => {
-    try {
-      const params = { ...filterParams, page: pageNum };
-      const res = await api.get("/vehicles", { params });
-      setVehicles(res.data.vehicles);
-      setTotal(res.data.total);
-      setPage(res.data.page);
-      setPages(res.data.pages);
-    } catch (err) {
-      setVehicles([]);
-      setTotal(0);
-      setPages(1);
-    }
-  };
+      try {
+        const token = sessionStorage.getItem("token");
+
+        const res = await graphqlApi.post(
+          "/graphql",
+          {
+            query: `
+              query ListVehicles(
+                $brand: String
+                $model: String
+                $minYear: Int
+                $maxYear: Int
+                $minPrice: Float
+                $maxPrice: Float
+                $status: String
+                $page: Int
+                $limit: Int
+              ) {
+                listVehicles(
+                  brand: $brand
+                  model: $model
+                  minYear: $minYear
+                  maxYear: $maxYear
+                  minPrice: $minPrice
+                  maxPrice: $maxPrice
+                  status: $status
+                  page: $page
+                  limit: $limit
+                ) {
+                  vehicles {
+                    _id
+                    brand
+                    model
+                    year
+                    price
+                    image
+                    status
+                  }
+                  total
+                  page
+                  pages
+                }
+              }
+            `,
+            variables: {
+              brand: filterParams.brand || undefined,
+              model: filterParams.model || undefined,
+              minYear: filterParams.minYear ? Number(filterParams.minYear) : undefined,
+              maxYear: filterParams.maxYear ? Number(filterParams.maxYear) : undefined,
+              minPrice: filterParams.minPrice ? Number(filterParams.minPrice) : undefined,
+              maxPrice: filterParams.maxPrice ? Number(filterParams.maxPrice) : undefined,
+              status: filterParams.status || undefined,
+              page: pageNum,
+              limit: 6
+            }
+          },
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          }
+        );
+
+        const data = res.data.data.listVehicles;
+
+        setVehicles(data.vehicles);
+        setTotal(data.total);
+        setPage(data.page);
+        setPages(data.pages);
+
+      } catch (err) {
+        console.error("Error fetching vehicles:", err);
+        setVehicles([]);
+        setTotal(0);
+        setPages(1);
+      }
+    };
+
 
   React.useEffect(() => {
     fetchVehicles(filters, page);
