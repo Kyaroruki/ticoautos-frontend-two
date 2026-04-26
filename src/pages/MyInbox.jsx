@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import AnswerForm from "../components/chat/AnswerForm";
 import ConversationThread from "../components/chat/ConversationThread";
 import ThreadList from "../components/chat/ThreadList";
-import api from "../services/api";
+import graphqlApi from "../services/graphqlApi";
 import {appendAnswerToQuestion,buildInboxThreads,getBuyerLabel,getPendingQuestion,getSelectedThread,getVehicleTitle,} from "../utils/questions";
 import styles from "../styles/chat.module.css";
 import "../styles/vehicle.css";
@@ -19,8 +19,45 @@ export default function MyInbox() {
       setErrorMessage("");
 
       try {
-        const res = await api.get("/questions/inbox");
-        setQuestions(res.data.questions || []);
+        const token = sessionStorage.getItem("token");
+
+        const res = await graphqlApi.post(
+          "/graphql",
+          {
+            query: `
+              query {
+                inbox {
+                  _id
+                  text
+                  date
+                  user {
+                    _id
+                    name
+                  }
+                  vehicle {
+                    _id
+                    brand
+                    model
+                  }
+                  answers {
+                    _id
+                    text
+                    date
+                    user {
+                      _id
+                      name
+                    }
+                  }
+                }
+              }
+            `
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+
+        setQuestions(res.data.data.inbox || []);
       } catch (error) {
         setQuestions([]);
         setErrorMessage("Could not load your inbox.");

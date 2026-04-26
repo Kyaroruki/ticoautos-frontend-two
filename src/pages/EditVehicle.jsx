@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import api from "../services/api";
 import VehicleForm from "../components/vehicle/VehicleForm";
 import VehicleManageCard from "../components/vehicle/VehicleManageCard";
-
+import graphqlApi from "../services/graphqlApi";
 
 function EditVehicle() {
   const { id } = useParams(); // obtiene el id de la URL
@@ -11,21 +11,73 @@ function EditVehicle() {
   const [showEditForm, setShowEditForm] = useState(true);
 
   useEffect(() => {
-    // Cargar datos del vehículo
-    api.get(`/vehicles/${id}`)
-      .then(res => setVehicle(res.data))
-      .catch(() => setVehicle(null));
+    // datos del vehículo con GraphQL
+    const fetchVehicle = async () => {
+      try {
+        const res = await graphqlApi.post("/graphql", {
+          query: `
+            query ($id: ID!) {
+              vehicle(id: $id) {
+                _id
+                brand
+                model
+                year
+                price
+                description
+                status
+                image
+                owner {
+                  name
+                }
+              }
+            }
+          `,
+          variables: { id }
+        });
+
+        setVehicle(res.data.data.vehicle);
+      } catch {
+        setVehicle(null);
+      }
+    };
+
+    fetchVehicle();
   }, [id]);
 
   // Función para manejar la edición
   const handleEdit = async (formData) => {
     const response = await api.put(`/vehicles/${id}`, formData);
     if (response.status !== 200) throw new Error("Error editing vehicle");
+
     setShowEditForm(false);
-    // Recargar datos
-    api.get(`/vehicles/${id}`)
-      .then(res => setVehicle(res.data))
-      .catch(() => setVehicle(null));
+
+    // recargar datos con GraphQL
+    try {
+      const res = await graphqlApi.post("/graphql", {
+        query: `
+          query ($id: ID!) {
+            vehicle(id: $id) {
+              _id
+              brand
+              model
+              year
+              price
+              description
+              status
+              image
+              owner {
+                name
+              }
+            }
+          }
+        `,
+        variables: { id }
+      });
+
+      setVehicle(res.data.data.vehicle);
+    } catch {
+      setVehicle(null);
+    }
   };
 
   // Eliminar vehículo

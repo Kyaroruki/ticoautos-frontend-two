@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from "react";
-import api from "../../services/api";
+import graphqlApi from "../../services/graphqlApi";
 import ConversationThread from "./ConversationThread";
 import QuestionForm from "./QuestionForm";
 import AnswerForm from "./AnswerForm";
 import ThreadList from "./ThreadList";
-import {appendAnswerToQuestion,appendQuestion,buildBuyerThreads,getBuyerLabel,getPendingQuestion,getSelectedThread,getVehicleTitle,
+import {
+  appendAnswerToQuestion,
+  appendQuestion,
+  buildBuyerThreads,
+  getBuyerLabel,
+  getPendingQuestion,
+  getSelectedThread,
 } from "../../utils/questions";
 import styles from "../../styles/chat.module.css";
 
@@ -23,11 +29,56 @@ export default function QuestionModal({ vehicle, onClose }) {
       setLoadingQA(true);
 
       try {
-        const res = await api.get(`/questions/vehicle/${vehicle._id}`);
-        const loadedQuestions = res.data.questions || [];
+        const res = await graphqlApi.post("/graphql", {
+          query: `
+            query VehicleQuestions($vehicleId: ID!) {
+              vehicleQuestions(vehicleId: $vehicleId) {
+                isOwner
+                questions {
+                  _id
+                  text
+                  date
+                  user {
+                    _id
+                    username
+                    name
+                  }
+                  vehicle {
+                    _id
+                    brand
+                    model
+                    year
+                    image
+                    status
+                    owner {
+                      _id
+                      name
+                    }
+                  }
+                  answers {
+                    _id
+                    text
+                    date
+                    user {
+                      _id
+                      username
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          `,
+          variables: {
+            vehicleId: vehicle._id
+          }
+        });
+
+        const response = res.data.data.vehicleQuestions;
+        const loadedQuestions = response.questions || [];
         const firstQuestion = loadedQuestions.find((question) => question.user?._id);
 
-        setIsOwner(Boolean(res.data.isOwner));
+        setIsOwner(Boolean(response.isOwner));
         setQuestions(loadedQuestions);
         setSelectedThreadId(firstQuestion?.user?._id || null);
       } catch {
