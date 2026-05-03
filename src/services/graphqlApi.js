@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Crea una instancia de Axios con la configuración base para GraphQL
 const graphqlApi = axios.create({
-  baseURL: 'http://localhost:3000'
+  baseURL: 'http://localhost:4000'
 });
 
 // para incluir el token en cada petición automáticamente sin tener que agregarlo manualmente en cada llamada

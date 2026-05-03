@@ -1,5 +1,5 @@
 import { useState } from "react";
-import api from "../services/api";
+import api, { padronApi } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
@@ -48,7 +48,7 @@ function Register({ isVisible = true, showToast }) {
     setIsVerifying(true);
 
     try {
-      const response = await api.get(`/auth/identity/${identify_number}`);
+      const response = await padronApi.get(`/identity/${identify_number}`);
 
       setName(response.data.name);
       setLastname(response.data.lastname);
@@ -154,7 +154,7 @@ function Register({ isVisible = true, showToast }) {
     if (!googleCedula.trim()) { setGoogleMessage("Enter an ID"); return; }
     setGoogleMessage("");
     try {
-      const response = await api.get(`/auth/identity/${googleCedula}`);
+      const response = await padronApi.get(`/identity/${googleCedula}`);
       setGoogleCedulaName(response.data.name);
       setGoogleCedulaLastname(response.data.lastname);
       setGoogleCedulaVerified(true);

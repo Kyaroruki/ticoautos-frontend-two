@@ -14,4 +14,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Instancia separada para el servicio del padrón
+export const padronApi = axios.create({
+  baseURL: 'http://localhost:3002'
+});
+
 export default api; //para usarlo en otros archivos, similar a module.exports que usamos en el backend
